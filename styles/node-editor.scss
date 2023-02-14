@@ -1,0 +1,39 @@
+.node-editor {
+  &:not(&--root) {
+    padding-left: 24px;
+    border-left: 1px solid rgb(0 0 0 / 12%);
+  }
+
+  &--literal {
+    display: flex;
+    align-items: center;
+  }
+
+  &__label {
+    position: relative;
+    margin-right: 4px;
+    font-family: monospace;
+    line-height: 24px;
+  }
+
+  &__closing-bracket {
+    font-family: monospace;
+    line-height: 24px;
+  }
+
+  &__add-child {
+    height: 24px;
+    margin-left: 24px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  &__delete {
+    position: absolute;
+    left: -16px;
+    padding: 0 4px;
+    color: red;
+    cursor: pointer;
+  }
+}
