@@ -1,4 +1,5 @@
 import { useReducer } from "react";
+import { createNode, NodeType } from "../util.js";
 
 export type DocumentNode = ObjectNode | ArrayNode | string | number | boolean;
 
@@ -10,19 +11,8 @@ export type ArrayNode = readonly DocumentNode[];
 
 export type DocumentPath = readonly (string | number)[];
 
-export type NodeType = "object" | "array" | "string" | "number" | "boolean";
-
 export function useDocumentReducer() {
-  return useReducer(reduce, {
-    stringProp: "hello world",
-    numberProp: 4,
-    boolProp: true,
-    arrayProp: ["string in array", 12345, [{ "prop with spaces": false }]],
-    objectProp: {
-      nested1: "works",
-      nested2: {},
-    },
-  });
+  return useReducer(reduce, null, init);
 }
 
 export type Action =
@@ -82,6 +72,19 @@ function reduce(rootDocument: DocumentNode, action: Action): DocumentNode {
   }
 }
 
+function init(): DocumentNode {
+  return {
+    stringProp: "hello world",
+    numberProp: 4,
+    boolProp: true,
+    arrayProp: ["string in array", 12345, [{ "prop with spaces": false }]],
+    objectProp: {
+      nested1: "works",
+      nested2: {},
+    },
+  };
+}
+
 function rebuildAtPath(
   node: DocumentNode,
   path: DocumentPath,
@@ -101,19 +104,4 @@ function rebuildAtPath(
     return result;
   }
   throw new Error("Invalid path.");
-}
-
-function createNode(nodeType: NodeType): DocumentNode {
-  switch (nodeType) {
-    case "object":
-      return {};
-    case "array":
-      return [];
-    case "string":
-      return "";
-    case "number":
-      return 0;
-    case "boolean":
-      return false;
-  }
 }
