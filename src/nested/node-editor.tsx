@@ -1,23 +1,15 @@
-import { ChangeEvent, FC, ReactNode, useContext, useState } from "react";
-import {
-  ArrayNode,
-  DocumentNode,
-  DocumentPath,
-  NodeType,
-  ObjectNode,
-} from "./use-document-reducer.js";
+import { ChangeEvent, FC, memo, ReactNode, useContext, useState } from "react";
+import { NodeType } from "../util.js";
 import { EditNodeContext } from "./use-edit-node.js";
+import { ArrayNode, Node, NodePath, ObjectNode } from "./use-node-reducer.js";
 
 export interface NodeEditorProps<T> {
-  readonly path: DocumentPath;
+  readonly path: NodePath;
   readonly node: T;
 }
 
-export let DocumentNodeEditor: FC<NodeEditorProps<DocumentNode>> = ({
-  path,
-  node,
-}) => {
-  console.log(path);
+export let NodeEditor: FC<NodeEditorProps<Node>> = ({ path, node }) => {
+  console.log(`<NodeEditor path={[${path}]} /> rendered`);
 
   switch (typeof node) {
     case "object":
@@ -35,13 +27,13 @@ export let DocumentNodeEditor: FC<NodeEditorProps<DocumentNode>> = ({
   }
 };
 
-// DocumentNodeEditor = memo(
-//   DocumentNodeEditor,
-//   (prevProps, nextProps) =>
-//     prevProps.node === nextProps.node &&
-//     prevProps.path.length === nextProps.path.length &&
-//     prevProps.path.every((element, index) => element === nextProps.path[index])
-// );
+NodeEditor = memo(
+  NodeEditor,
+  (prevProps, nextProps) =>
+    prevProps.node === nextProps.node &&
+    prevProps.path.length === nextProps.path.length &&
+    prevProps.path.every((element, index) => element === nextProps.path[index])
+);
 
 export function ObjectEditor({ path, node }: NodeEditorProps<ObjectNode>) {
   return (
@@ -53,7 +45,7 @@ export function ObjectEditor({ path, node }: NodeEditorProps<ObjectNode>) {
     >
       <Label path={path}>{"{"}</Label>
       {Object.entries(node).map(([key, value]) => (
-        <DocumentNodeEditor key={key} path={[...path, key]} node={value} />
+        <NodeEditor key={key} path={[...path, key]} node={value} />
       ))}
       <AddChild path={path} existingObjectKeys={Object.keys(node)} />
       <div className="node-editor__closing-bracket">{"}"}</div>
@@ -66,11 +58,7 @@ export function ArrayEditor({ path, node }: NodeEditorProps<ArrayNode>) {
     <div className="node-editor node-editor--collection">
       <Label path={path}>[</Label>
       {node.map((element, index) => (
-        <DocumentNodeEditor
-          key={index}
-          path={[...path, index]}
-          node={element}
-        />
+        <NodeEditor key={index} path={[...path, index]} node={element} />
       ))}
       <AddChild path={path} />
       <div className="node-editor__closing-bracket">]</div>
@@ -138,12 +126,12 @@ export function BooleanEditor({ path, node }: NodeEditorProps<boolean>) {
 }
 
 interface LabelProps {
-  readonly path: DocumentPath;
+  readonly path: NodePath;
   readonly children?: ReactNode;
 }
 
 function Label({ path, children }: LabelProps) {
-  const isRootDocument = path.length === 0;
+  const isRootNode = path.length === 0;
   const lastPathElement = path.at(-1);
   const parentType = typeof lastPathElement === "string" ? "object" : "array";
 
@@ -166,7 +154,7 @@ function Label({ path, children }: LabelProps) {
 
   return (
     <div className="node-editor__label">
-      {!isRootDocument && (
+      {!isRootNode && (
         <>
           <a className="node-editor__delete" onClick={onDelete}>
             ×
@@ -182,7 +170,7 @@ function Label({ path, children }: LabelProps) {
 }
 
 interface AddChildProps {
-  readonly path: DocumentPath;
+  readonly path: NodePath;
   readonly existingObjectKeys?: readonly string[];
 }
 
